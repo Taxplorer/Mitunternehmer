@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wer wird Millionär - Mitunternehmerschaftsbesteuerung</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #ccc;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .question-section {
+            flex: 2;
+            background: rgba(0,0,0,0.6);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #ffd700;
+        }
+
+        .question-number {
+            font-size: 1.5em;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            text-align: center;
+            min-height: 60px;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .answer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 2px solid #555;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .answer:hover {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-color: #ffd700;
+            transform: translateY(-2px);
+        }
+
+        .answer.selected {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border-color: #ffd700;
+        }
+
+        .answer.correct {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-color: #00ff00;
+        }
+
+        .answer.wrong {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-color: #ff0000;
+        }
+
+        .jokers {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .joker {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .joker:hover:not(:disabled) {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            transform: scale(1.05);
+        }
+
+        .joker:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            transform: scale(1.05);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .btn.danger:hover {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+        }
+
+        .sidebar {
+            flex: 1;
+            background: rgba(0,0,0,0.6);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #ffd700;
+            height: fit-content;
+        }
+
+        .money-ladder {
+            list-style: none;
+        }
+
+        .money-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .money-item.current {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .money-item.passed {
+            background: rgba(39, 174, 96, 0.3);
+            color: #2ecc71;
+        }
+
+        .money-item.safe {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .start-screen, .end-screen {
+            text-align: center;
+            padding: 50px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 15px;
+            border: 2px solid #ffd700;
+        }
+
+        .start-screen h2, .end-screen h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .start-screen p, .end-screen p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .final-amount {
+            font-size: 3em;
+            color: #ffd700;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Wer wird Millionär?</div>
+            <div class="subtitle">Besteuerung von Mitunternehmerschaften</div>
+        </div>
+
+        <div id="startScreen" class="start-screen">
+            <h2>Willkommen zum Steuerrecht-Quiz!</h2>
+            <p>Testen Sie Ihr Wissen zur Besteuerung von Mitunternehmerschaften.<br>
+            15 Fragen führen Sie zur Million - aber Vorsicht: Ein Fehler kann alles kosten!</p>
+            <p><strong>Verfügbare Joker:</strong> 50:50, Publikumsjoker, Telefonjoker</p>
+            <button class="btn" onclick="startGame()">Spiel starten</button>
+        </div>
+
+        <div id="gameScreen" class="hidden">
+            <div class="game-area">
+                <div class="question-section">
+                    <div class="question-number" id="questionNumber">Frage 1 von 15</div>
+                    <div class="question" id="questionText"></div>
+                    <div class="answers" id="answers"></div>
+                    
+                    <div class="jokers">
+                        <button class="joker" id="joker50" onclick="use5050()">50:50</button>
+                        <button class="joker" id="jokerPhone" onclick="usePhone()">📞 Telefonjoker</button>
+                        <button class="joker" id="jokerAudience" onclick="useAudience()">👥 Publikumsjoker</button>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn" id="confirmBtn" onclick="confirmAnswer()" style="display:none;">Antwort bestätigen</button>
+                        <button class="btn danger" onclick="endGame()">Aufhören</button>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #ffd700;">Gewinnstufen</h3>
+                    <ul class="money-ladder" id="moneyLadder"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="endScreen" class="end-screen hidden">
+            <h2 id="endTitle">Spiel beendet!</h2>
+            <div class="final-amount" id="finalAmount">€ 0</div>
+            <p id="endMessage"></p>
+            <button class="btn" onclick="restartGame()">Neues Spiel</button>
+        </div>
+    </div>
+
+    <script>
+        const moneyAmounts = [
+            '€ 50', '€ 100', '€ 200', '€ 300', '€ 500',
+            '€ 1.000', '€ 2.000', '€ 4.000', '€ 8.000', '€ 16.000',
+            '€ 32.000', '€ 64.000', '€ 125.000', '€ 500.000', '€ 1.000.000'
+        ];
+
+        const safeAmounts = [4, 9, 14]; // Indices für sichere Beträge (€500, €16.000, €1.000.000)
+
+        const questions = [
+            // Stufe 1 (€50)
+            [
+                {
+                    question: "Was ist eine Mitunternehmerschaft im Steuerrecht?",
+                    answers: ["Eine Kapitalgesellschaft", "Eine Personengesellschaft mit unternehmerisch tätigen Gesellschaftern", "Eine Einzelunternehmung", "Eine gemeinnützige Organisation"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Rechtsform gehört NICHT zu den Mitunternehmerschaften?",
+                    answers: ["OHG", "KG", "GmbH", "GbR"],
+                    correct: 2
+                },
+                {
+                    question: "Nach welchem Prinzip werden Mitunternehmerschaften besteuert?",
+                    answers: ["Körperschaftsteuer", "Transparenzprinzip", "Quellensteuer", "Pauschalsteuer"],
+                    correct: 1
+                }
+            ],
+            // Stufe 2 (€100)
+            [
+                {
+                    question: "Wer ist nach § 15 Abs. 1 Nr. 2 EStG Mitunternehmer?",
+                    answers: ["Jeder Gesellschafter einer Personengesellschaft", "Nur geschäftsführende Gesellschafter", "Gesellschafter mit Mitunternehmerrisiko und Mitunternehmerinitiative", "Nur Komplementäre"],
+                    correct: 2
+                },
+                {
+                    question: "Was gehört zum Gesamthandsvermögen einer Mitunternehmerschaft?",
+                    answers: ["Nur Bargeldbestände", "Alle dem Betrieb dienenden Wirtschaftsgüter", "Nur Grundstücke", "Nur bewegliche Sachen"],
+                    correct: 1
+                },
+                {
+                    question: "Wo wird der Gewinn einer Mitunternehmerschaft ermittelt?",
+                    answers: ["Bei der Gesellschaft", "Bei jedem Gesellschafter einzeln", "Beim Finanzamt", "Bei einem Notar"],
+                    correct: 0
+                }
+            ],
+            // Stufe 3 (€200)
+            [
+                {
+                    question: "Was ist Sonderbetriebsvermögen?",
+                    answers: ["Vermögen der Gesellschaft", "Vermögen eines Gesellschafters, das der Gesellschaft dient", "Privates Vermögen", "Vermögen einer anderen Gesellschaft"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Arten von Sonderbetriebsvermögen gibt es?",
+                    answers: ["Nur notwendiges", "Nur gewillkürtes", "Notwendiges und gewillkürtes", "Temporäres und dauerhaftes"],
+                    correct: 2
+                },
+                {
+                    question: "Was ist eine Ergänzungsbilanz?",
+                    answers: ["Eine zusätzliche Bilanz der Gesellschaft", "Eine Bilanz zur Erfassung der individuellen Verhältnisse eines Gesellschafters", "Eine Steuerbilanz", "Eine Handelsbilanz"],
+                    correct: 1
+                }
+            ],
+            // Stufe 4 (€300)
+            [
+                {
+                    question: "Wann entsteht eine Ergänzungsbilanz?",
+                    answers: ["Immer bei Mitunternehmerschaften", "Bei unterschiedlichen Kapitalanteilen und Gewinnverteilungsschlüsseln", "Nur bei Verlusten", "Nur bei Gewinnen"],
+                    correct: 1
+                },
+                {
+                    question: "Was ist der Unterschied zwischen notwendigem und gewillkürtem Sonderbetriebsvermögen?",
+                    answers: ["Nur steuerlich", "Notwendig dient zwingend dem Betrieb, gewillkürt wird zugeordnet", "Nur handelsrechtlich", "Gibt es nicht"],
+                    correct: 1
+                },
+                {
+                    question: "Wie wird die Mitunternehmerstellung übertragen?",
+                    answers: ["Nur durch Kauf", "Durch Übertragung der Gesellschafterstellung", "Nur durch Erbschaft", "Gar nicht möglich"],
+                    correct: 1
+                }
+            ],
+            // Stufe 5 (€500) - Sicherheitsstufe
+            [
+                {
+                    question: "Was besagt der Grundsatz der Einheitsbetrachtung?",
+                    answers: ["Gesellschaft und Gesellschafter sind steuerlich getrennt", "Gesellschaft und Gesellschafter bilden eine steuerliche Einheit", "Nur die Gesellschaft ist steuerpflichtig", "Jeder Gesellschafter ist einzeln zu betrachten"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Steuerarten fallen bei Mitunternehmerschaften an?",
+                    answers: ["Nur Einkommensteuer", "Einkommensteuer und Gewerbesteuer", "Nur Gewerbesteuer", "Körperschaftsteuer"],
+                    correct: 1
+                },
+                {
+                    question: "Was ist bei der Gewinnverteilung zu beachten?",
+                    answers: ["Muss immer gleichmäßig erfolgen", "Richtet sich nach dem Gesellschaftsvertrag", "Ist gesetzlich festgelegt", "Erfolgt nach Arbeitsleistung"],
+                    correct: 1
+                }
+            ],
+            // Stufe 6 (€1.000)
+            [
+                {
+                    question: "Welche Bedeutung hat § 15a EStG für Mitunternehmerschaften?",
+                    answers: ["Regelt die Gewinnverteilung", "Verlustabzugsbeschränkung bei beschränkter Haftung", "Regelt die Besteuerung", "Ist nicht relevant"],
+                    correct: 1
+                },
+                {
+                    question: "Was sind Sondervergütungen in der Mitunternehmerschaft?",
+                    answers: ["Bonuszahlungen", "Vergütungen für besondere Leistungen eines Gesellschafters", "Geschäftsführergehälter", "Darlehenszinsen"],
+                    correct: 1
+                },
+                {
+                    question: "Wie werden stille Reserven bei Einbringung behandelt?",
+                    answers: ["Werden sofort besteuert", "Können unter bestimmten Voraussetzungen übertragen werden", "Sind steuerfrei", "Werden halbiert"],
+                    correct: 1
+                }
+            ],
+            // Stufe 7 (€2.000)
+            [
+                {
+                    question: "Was ist das Maßgeblichkeitsprinzip bei Mitunternehmerschaften?",
+                    answers: ["Handelsbilanz ist für Steuerbilanz maßgeblich", "Steuerbilanz ist eigenständig", "Gibt es nicht", "Gilt nur für Kapitalgesellschaften"],
+                    correct: 0
+                },
+                {
+                    question: "Welche Rolle spielt die Thesaurierungsbegünstigung?",
+                    answers: ["Gibt es nicht mehr", "Ermäßigt den Steuersatz für nicht entnommene Gewinne", "Erhöht die Steuerlast", "Gilt nur für Kapitalgesellschaften"],
+                    correct: 1
+                },
+                {
+                    question: "Was ist ein Sonderbetriebsausgaben?",
+                    answers: ["Ausgaben der Gesellschaft", "Ausgaben eines Gesellschafters im Zusammenhang mit seiner Beteiligung", "Private Ausgaben", "Sind nicht abzugsfähig"],
+                    correct: 1
+                }
+            ],
+            // Stufe 8 (€4.000)
+            [
+                {
+                    question: "Wie wirkt sich ein negativer Kapitalkontostand aus?",
+                    answers: ["Führt zur Auflösung", "Muss sofort ausgeglichen werden", "Begrenzt den Verlustabzug nach § 15a EStG", "Hat keine Auswirkungen"],
+                    correct: 2
+                },
+                {
+                    question: "Was regelt § 6b EStG bei Mitunternehmerschaften?",
+                    answers: ["Gewinnverteilung", "Übertragung stiller Reserven", "AfA-Methoden", "Bewertung"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Auswirkungen hat der Buchwert bei Sonderbetriebsvermögen?",
+                    answers: ["Wird immer neu bewertet", "Wird mit dem Teilwert angesetzt", "Bleibt beim übertragenden Buchwert", "Ist irrelevant"],
+                    correct: 2
+                }
+            ],
+            // Stufe 9 (€8.000)
+            [
+                {
+                    question: "Was ist bei der Gewerbesteueranrechnung zu beachten?",
+                    answers: ["Erfolgt nicht bei Mitunternehmerschaft", "Erfolgt beim Gesellschafter anteilig", "Erfolgt nur bei der Gesellschaft", "Ist optional"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Bedeutung hat die Mindestbesteuerung nach § 10d EStG?",
+                    answers: ["Begrenzt den Verlustabzug", "Erhöht die Steuerlast", "Gilt nicht für Mitunternehmerschaften", "Ist aufgehoben"],
+                    correct: 0
+                },
+                {
+                    question: "Was sind verdeckte Gewinnausschüttungen bei Mitunternehmerschaften?",
+                    answers: ["Gibt es nicht", "Unangemessene Vergütungen an Gesellschafter", "Normale Gewinnverteilung", "Sondervergütungen"],
+                    correct: 1
+                }
+            ],
+            // Stufe 10 (€16.000) - Sicherheitsstufe
+            [
+                {
+                    question: "Wie erfolgt die Zurechnung von Wirtschaftsgütern bei gemischter Nutzung?",
+                    answers: ["Immer 50:50", "Nach dem Schwerpunkt der Nutzung", "Gar nicht", "Immer betrieblich"],
+                    correct: 1
+                },
+                {
+                    question: "Was ist das Tunneling-Verbot nach § 39 AO?",
+                    answers: ["Verbot von Unternehmensverkäufen", "Verbot der Umgehung von Verlustabzugsbeschränkungen", "Verbot von Umstrukturierungen", "Gibt es nicht"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Rolle spielt die Mitunternehmerstellung bei der Erbschaftsteuer?",
+                    answers: ["Keine", "Begünstigung für Betriebsvermögen möglich", "Erhöhte Steuersätze", "Steuerbefreiung"],
+                    correct: 1
+                }
+            ],
+            // Stufe 11 (€32.000)
+            [
+                {
+                    question: "Was ist eine qualifizierte Beteiligung im Sinne des § 17 EStG?",
+                    answers: ["Jede Beteiligung", "Beteiligung von mindestens 1%", "Beteiligung von mindestens 25%", "Beteiligung von mindestens 50%"],
+                    correct: 1
+                },
+                {
+                    question: "Wie wirkt sich die Organschaft auf Mitunternehmerschaften aus?",
+                    answers: ["Gar nicht möglich", "Nur bei körperschaftsteuerpflichtigen Gesellschaftern", "Immer möglich", "Nur bei natürlichen Personen"],
+                    correct: 1
+                },
+                {
+                    question: "Was besagen die DBA-Regelungen für Mitunternehmerschaften?",
+                    answers: ["Sind nicht relevant", "Transparent entity-Ansatz oder entity-Ansatz", "Nur entity-Ansatz", "Nur transparent entity-Ansatz"],
+                    correct: 1
+                }
+            ],
+            // Stufe 12 (€64.000)
+            [
+                {
+                    question: "Welche Auswirkungen hat die EU-Fusionsrichtlinie auf Mitunternehmerschaften?",
+                    answers: ["Keine", "Ermöglicht steuerfreie Umwandlungen unter bestimmten Voraussetzungen", "Verbietet Umwandlungen", "Nur nationale Bedeutung"],
+                    correct: 1
+                },
+                {
+                    question: "Was ist die Hinzurechnungsbesteuerung nach dem AStG?",
+                    answers: ["Betrifft nur Kapitalgesellschaften", "Kann auch Mitunternehmerschaften bei ausländischen Zwischengesellschaften treffen", "Ist irrelevant", "Wurde abgeschafft"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Bedeutung hat das MoPeG für Mitunternehmerschaften?",
+                    answers: ["Keine Auswirkungen", "Elektronisches Transparenzregister und Registerführung", "Nur für GmbH", "Wurde nicht umgesetzt"],
+                    correct: 1
+                }
+            ],
+            // Stufe 13 (€125.000)
+            [
+                {
+                    question: "Was ist die Entstrickungsbesteuerung bei Mitunternehmerschaften?",
+                    answers: ["Gibt es nicht", "Besteuerung bei Wegzug von Wirtschaftsgütern ins Ausland", "Besteuerung bei Auflösung", "Besteuerung bei Gewinnausschüttung"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Rolle spielt die BEPS-Initiative für die Besteuerung von Mitunternehmerschaften?",
+                    answers: ["Keine", "Verschärfung der Missbrauchsbekämpfung und Substanzanforderungen", "Nur für multinationale Konzerne", "Wurde nicht umgesetzt"],
+                    correct: 1
+                },
+                {
+                    question: "Was ist die Zinsschranke nach § 4h EStG bei Mitunternehmerschaften?",
+                    answers: ["Betrifft nur Kapitalgesellschaften", "Begrenzt den Abzug von Finanzierungsaufwendungen", "Wurde abgeschafft", "Ist irrelevant"],
+                    correct: 1
+                }
+            ],
+            // Stufe 14 (€500.000)
+            [
+                {
+                    question: "Welche Auswirkungen hat die Mantelkaufregelung auf Mitunternehmerschaften?",
+                    answers: ["Keine", "Verlustuntergang bei wesentlicher Beteiligungsänderung", "Nur bei Kapitalgesellschaften", "Gewinnverdopplung"],
+                    correct: 1
+                },
+                {
+                    question: "Was ist die erweiterte Kürzung nach § 9 Nr. 1 GewStG?",
+                    answers: ["Gibt es nicht", "Kürzung bestimmter Einkunftsarten bei der Gewerbesteuer", "Erhöhung der Gewerbesteuer", "Nur für Einzelunternehmen"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Bedeutung hat die Digital Services Tax für digitale Mitunternehmerschaften?",
+                    answers: ["Keine", "Neue Besteuerungsgrundlage für digitale Geschäftsmodelle", "Wurde nicht eingeführt", "Nur für Kapitalgesellschaften"],
+                    correct: 1
+                }
+            ],
+            // Stufe 15 (€1.000.000)
+            [
+                {
+                    question: "Was ist die Anti-Tax-Avoidance-Directive (ATAD) und ihre Auswirkungen auf Mitunternehmerschaften?",
+                    answers: ["Betrifft nur Kapitalgesellschaften", "EU-weite Mindeststandards gegen Steuervermeidung mit Auswirkungen auf hybride Gestaltungen", "Wurde nicht umgesetzt", "Nur für multinationale Unternehmen"],
+                    correct: 1
+                },
+                {
+                    question: "Welche Auswirkungen hat die Principal Purpose Test (PPT)-Regel auf Mitunternehmerschaften?",
+                    answers: ["Keine", "Missbrauchsklausel zur Verhinderung von DBA-Missbrauch", "Nur nationale Bedeutung", "Wurde abgeschafft"],
+                    correct: 1
+                },
+                {
+                    question: "Was besagt die Substance-over-Form-Doktrin bei komplexen Mitunternehmerschaftsstrukturen?",
+                    answers: ["Formale Gestaltung ist entscheidend", "Wirtschaftliche Betrachtungsweise geht vor rechtlicher Form", "Ist irrelevant", "Gilt nur im Ausland"],
+                    correct: 1
+                }
+            ]
+        ];
+
+        let currentLevel = 0;
+        let selectedAnswer = null;
+        let usedJokers = { fifty: false, phone: false, audience: false };
+        let gameStarted = false;
+
+        function initGame() {
+            const moneyLadder = document.getElementById('moneyLadder');
+            moneyLadder.innerHTML = '';
+            
+            for (let i = 14; i >= 0; i--) {
+                const li = document.createElement('li');
+                li.className = 'money-item';
+                if (safeAmounts.includes(i)) {
+                    li.classList.add('safe');
+                }
+                li.innerHTML = `<span>${i + 1}</span><span>${moneyAmounts[i]}</span>`;
+                moneyLadder.appendChild(li);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            gameStarted = true;
+            currentLevel = 0;
+            selectedAnswer = null;
+            usedJokers = { fifty: false, phone: false, audience: false };
+            
+            // Reset jokers
+            document.getElementById('joker50').disabled = false;
+            document.getElementById('jokerPhone').disabled = false;
+            document.getElementById('jokerAudience').disabled = false;
+            
+            initGame();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const questionPool = questions[currentLevel];
+            const randomQuestion = questionPool[Math.floor(Math.random() * questionPool.length)];
+            
+            document.getElementById('questionNumber').textContent = `Frage ${currentLevel + 1} von 15`;
+            document.getElementById('questionText').textContent = randomQuestion.question;
+            
+            const answersContainer = document.getElementById('answers');
+            answersContainer.innerHTML = '';
+            
+            const letters = ['A', 'B', 'C', 'D'];
+            
+            randomQuestion.answers.forEach((answer, index) => {
+                const div = document.createElement('div');
+                div.className = 'answer';
+                div.innerHTML = `<strong>${letters[index]}:</strong> ${answer}`;
+                div.onclick = () => selectAnswer(index);
+                div.dataset.index = index;
+                answersContainer.appendChild(div);
+            });
+            
+            // Store correct answer
+            window.currentCorrectAnswer = randomQuestion.correct;
+            selectedAnswer = null;
+            document.getElementById('confirmBtn').style.display = 'none';
+            
+            updateMoneyLadder();
+        }
+
+        function selectAnswer(index) {
+            // Remove previous selection
+            document.querySelectorAll('.answer').forEach(answer => {
+                answer.classList.remove('selected');
+            });
+            
+            // Select new answer
+            document.querySelectorAll('.answer')[index].classList.add('selected');
+            selectedAnswer = index;
+            document.getElementById('confirmBtn').style.display = 'inline-block';
+        }
+
+        function confirmAnswer() {
+            if (selectedAnswer === null) return;
+            
+            const answers = document.querySelectorAll('.answer');
+            const correctIndex = window.currentCorrectAnswer;
+            
+            // Show correct and wrong answers
+            answers.forEach((answer, index) => {
+                if (index === correctIndex) {
+                    answer.classList.add('correct');
+                } else if (index === selectedAnswer && index !== correctIndex) {
+                    answer.classList.add('wrong');
+                }
+            });
+            
+            document.getElementById('confirmBtn').style.display = 'none';
+            
+            setTimeout(() => {
+                if (selectedAnswer === correctIndex) {
+                    // Correct answer
+                    currentLevel++;
+                    if (currentLevel >= 15) {
+                        // Won the game!
+                        endGame(true);
+                    } else {
+                        loadQuestion();
+                    }
+                } else {
+                    // Wrong answer - calculate safe amount
+                    let safeAmount = 0;
+                    for (let i = safeAmounts.length - 1; i >= 0; i--) {
+                        if (currentLevel > safeAmounts[i]) {
+                            safeAmount = safeAmounts[i] + 1;
+                            break;
+                        }
+                    }
+                    endGame(false, safeAmount);
+                }
+            }, 3000);
+        }
+
+        function updateMoneyLadder() {
+            const items = document.querySelectorAll('.money-item');
+            items.forEach((item, index) => {
+                const level = 14 - index; // Reverse index
+                item.classList.remove('current', 'passed');
+                
+                if (level === currentLevel) {
+                    item.classList.add('current');
+                } else if (level < currentLevel) {
+                    item.classList.add('passed');
+                }
+            });
+        }
+
+        function use5050() {
+            if (usedJokers.fifty) return;
+            
+            usedJokers.fifty = true;
+            document.getElementById('joker50').disabled = true;
+            
+            const answers = document.querySelectorAll('.answer');
+            const correctIndex = window.currentCorrectAnswer;
+            let wrongAnswers = [];
+            
+            answers.forEach((answer, index) => {
+                if (index !== correctIndex) {
+                    wrongAnswers.push(index);
+                }
+            });
+            
+            // Remove 2 wrong answers randomly
+            const toRemove = wrongAnswers.sort(() => 0.5 - Math.random()).slice(0, 2);
+            
+            toRemove.forEach(index => {
+                answers[index].style.opacity = '0.3';
+                answers[index].onclick = null;
+            });
+        }
+
+        function usePhone() {
+            if (usedJokers.phone) return;
+            
+            usedJokers.phone = true;
+            document.getElementById('jokerPhone').disabled = true;
+            
+            const correctIndex = window.currentCorrectAnswer;
+            const letters = ['A', 'B', 'C', 'D'];
+            const confidence = Math.random() * 30 + 70; // 70-100% confidence
+            
+            alert(`Telefonjoker: "Ich bin mir zu ${confidence.toFixed(0)}% sicher, dass die Antwort ${letters[correctIndex]} ist."`);
+        }
+
+        function useAudience() {
+            if (usedJokers.audience) return;
+            
+            usedJokers.audience = true;
+            document.getElementById('jokerAudience').disabled = true;
+            
+            const correctIndex = window.currentCorrectAnswer;
+            const letters = ['A', 'B', 'C', 'D'];
+            
+            // Generate audience percentages (correct answer gets highest percentage)
+            let percentages = [0, 0, 0, 0];
+            percentages[correctIndex] = Math.random() * 30 + 50; // 50-80% for correct
+            
+            let remaining = 100 - percentages[correctIndex];
+            for (let i = 0; i < 4; i++) {
+                if (i !== correctIndex) {
+                    percentages[i] = Math.random() * remaining;
+                    remaining -= percentages[i];
+                }
+            }
+            
+            // Normalize to 100%
+            const sum = percentages.reduce((a, b) => a + b, 0);
+            percentages = percentages.map(p => (p / sum * 100).toFixed(0));
+            
+            let result = "Publikumsjoker:\n";
+            for (let i = 0; i < 4; i++) {
+                result += `${letters[i]}: ${percentages[i]}%\n`;
+            }
+            
+            alert(result);
+        }
+
+        function endGame(won = false, safeLevel = 0) {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            
+            const endTitle = document.getElementById('endTitle');
+            const finalAmount = document.getElementById('finalAmount');
+            const endMessage = document.getElementById('endMessage');
+            
+            if (won) {
+                endTitle.textContent = "Herzlichen Glückwunsch!";
+                finalAmount.textContent = "€ 1.000.000";
+                endMessage.textContent = "Sie haben alle 15 Fragen richtig beantwortet und sind nun Millionär! Ihr Wissen zur Besteuerung von Mitunternehmerschaften ist außergewöhnlich.";
+                finalAmount.classList.add('pulse');
+            } else if (currentLevel === 0) {
+                endTitle.textContent = "Schade!";
+                finalAmount.textContent = "€ 0";
+                endMessage.textContent = "Leider war die erste Antwort falsch. Sie gehen mit leeren Händen nach Hause.";
+            } else {
+                endTitle.textContent = "Aufgehört!";
+                if (safeLevel > 0) {
+                    finalAmount.textContent = moneyAmounts[safeLevel - 1];
+                    endMessage.textContent = `Sie haben bei der sicheren Gewinnstufe aufgehört und nehmen ${moneyAmounts[safeLevel - 1]} mit nach Hause.`;
+                } else {
+                    finalAmount.textContent = moneyAmounts[currentLevel - 1];
+                    endMessage.textContent = `Sie haben mit ${moneyAmounts[currentLevel - 1]} aufgehört. Eine weise Entscheidung!`;
+                }
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('endScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            document.getElementById('finalAmount').classList.remove('pulse');
+            currentLevel = 0;
+            selectedAnswer = null;
+            usedJokers = { fifty: false, phone: false, audience: false };
+            gameStarted = false;
+        }
+
+        // Initialize the game on page load
+        window.onload = function() {
+            initGame();
+        };
+    </script>
+</body>
+</html>
